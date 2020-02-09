@@ -1,0 +1,12 @@
+name: Minefarm
+version: ${project.version}
+main: aren227.minefarm.Plugin
+load: STARTUP
+depend: [SmartInvs, DataStorage]
+authors: [Aren]
+description: 마인팜 관련 플러그인
+
+commands:
+  mf:
+    description: 마인팜으로 이동합니다.
+    usage: /mf
