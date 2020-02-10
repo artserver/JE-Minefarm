@@ -2,7 +2,7 @@ name: Minefarm
 version: ${project.version}
 main: aren227.minefarm.Plugin
 load: STARTUP
-depend: [SmartInvs, DataStorage]
+depend: [SmartInvs, DataStorage, ConfigManager, AnvilGUI]
 authors: [Aren]
 description: 마인팜 관련 플러그인
 
