@@ -2,10 +2,14 @@ package aren227.minefarm.minefarm;
 
 import aren227.minefarm.Manager;
 import aren227.minefarm.util.Sector;
+import aren227.minefarm.util.String2Uuid;
 import kr.laeng.datastorage.DataStorageAPI;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Minefarm {
@@ -56,12 +60,42 @@ public class Minefarm {
         return true;
     }
 
-    public UUID getOwner(){
-        return UUID.fromString(DataStorageAPI.getPluginData("minefarm", uuid).getString("owner"));
+    public List<UUID> getPlayers(){
+        if(!DataStorageAPI.getPluginData("minefarm", uuid).isSet("players")) return new ArrayList<>();
+        return String2Uuid.toUuid(DataStorageAPI.getPluginData("minefarm", uuid).getStringList("players"));
     }
 
-    public void setOwner(UUID playerUuid){
-        DataStorageAPI.getPluginData("minefarm", uuid).set("owner", playerUuid);
+    public void setPlayers(List<UUID> uuids){
+        DataStorageAPI.getPluginData("minefarm", uuid).set("players", String2Uuid.toString(uuids));
+    }
+
+    public void addPlayer(UUID playerUuid){
+        List<UUID> list = getPlayers();
+        list.add(playerUuid);
+        setPlayers(list);
+
+        List<UUID> list2 = Manager.getInstance().getMinefarms(playerUuid);
+        list2.add(uuid);
+        Manager.getInstance().setMinefarms(playerUuid, list2);
+    }
+
+    public List<UUID> getOps(){
+        if(!DataStorageAPI.getPluginData("minefarm", uuid).isSet("ops")) return new ArrayList<>();
+        return String2Uuid.toUuid(DataStorageAPI.getPluginData("minefarm", uuid).getStringList("ops"));
+    }
+
+    public void setOps(List<UUID> uuids){
+        DataStorageAPI.getPluginData("minefarm", uuid).set("ops", String2Uuid.toString(uuids));
+    }
+
+    public void addOp(UUID playerUuid){
+        List<UUID> list = getOps();
+        list.add(playerUuid);
+        setOps(list);
+    }
+
+    public void setMain(UUID playerUuid){
+        DataStorageAPI.getPlayerData(playerUuid).set("currentMinefarm", uuid);
     }
 
     public void setName(String name){

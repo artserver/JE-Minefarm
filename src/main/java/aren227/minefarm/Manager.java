@@ -5,14 +5,18 @@ import aren227.configmanager.ConfigManager;
 import aren227.configmanager.ConfigSession;
 import aren227.minefarm.generator.MinefarmGenerator;
 import aren227.minefarm.minefarm.Minefarm;
+import aren227.minefarm.util.MinefarmID;
 import aren227.minefarm.util.Sector;
+import aren227.minefarm.util.String2Uuid;
 import kr.laeng.datastorage.DataStorageAPI;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class Manager {
@@ -59,22 +63,27 @@ public class Manager {
         return skyblockWorld;
     }
 
-    public void goToMinefarm(Player player){
-        if(!hasMinefarm(player)) createMinefarm(player);
+    public void goToCurrentMinefarm(Player player){
+        if(!hasMinefarm(player.getUniqueId())){
+            Minefarm minefarm = createMinefarm();
+            minefarm.addPlayer(player.getUniqueId());
+            minefarm.setMain(player.getUniqueId());
+            minefarm.addOp(player.getUniqueId());
+            minefarm.setName(player.getName() + "의 마인팜");
+        }
 
-        player.teleport(getMinefarm(player).getSpawnLocation());
-        player.sendTitle(ChatColor.GREEN + getMinefarm(player).getName(), "에 오신 것을 환영합니다!", 10, 40, 10);
+        player.teleport(getCurrentMinefarm(player.getUniqueId()).getSpawnLocation());
+        player.sendTitle(ChatColor.GREEN + getCurrentMinefarm(player.getUniqueId()).getName(), "에 오신 것을 환영합니다!", 10, 40, 10);
     }
 
-    public boolean hasMinefarm(Player player){
-        return DataStorageAPI.getPlayerData(player).isSet("minefarm");
+    public boolean hasMinefarm(UUID playerUuid){
+        if(!DataStorageAPI.getPlayerData(playerUuid).isSet("minefarms")) return false;
+        List<String> list = DataStorageAPI.getPlayerData(playerUuid).getStringList("minefarms");
+        return list.size() > 0;
     }
 
-    public void createMinefarm(Player player){
-        if(hasMinefarm(player)) return;
-
-        UUID uuid = UUID.randomUUID();
-        while(DataStorageAPI.exists("minefarm", uuid)) uuid = UUID.randomUUID(); //개쫄려ㅋㅋㅋㅋㅋㅋㅋ
+    public Minefarm createMinefarm(){
+        UUID uuid = MinefarmID.generateUuid();
 
         Minefarm minefarm = new Minefarm(uuid);
         minefarm.setCreationTime(System.currentTimeMillis());
@@ -82,27 +91,36 @@ public class Manager {
         Sector sector = getNextSector();
         minefarm.setSector(sector);
         minefarm.setSpawnLocation(sector.getDefaultSpawnLocation());
-        minefarm.setOwner(player.getUniqueId());
-        minefarm.setName(player.getName() + "의 마인팜");
-
-        DataStorageAPI.getPlayerData(player).set("minefarm", uuid.toString());
 
         minefarms.put(uuid, minefarm);
 
         plugin.getLogger().info("마인팜 생성 요청 처리됨. UUID = " + uuid.toString());
-        plugin.getLogger().info("소유자 = " + player.getName());
+
+        return minefarm;
     }
 
-    public Minefarm getMinefarm(Player player){
-        if(!hasMinefarm(player)) return null;
+    public Minefarm getCurrentMinefarm(UUID playerUuid){
+        if(!hasMinefarm(playerUuid)) return null;
 
-        UUID uuid = UUID.fromString(DataStorageAPI.getPlayerData(player).getString("minefarm"));
+        return getMinefarmByUuid(UUID.fromString(DataStorageAPI.getPlayerData(playerUuid).getString("currentMinefarm")));
+    }
 
-        if(minefarms.containsKey(uuid)) return minefarms.get(uuid);
+    public List<UUID> getMinefarms(UUID playerUuid){
+        if(!DataStorageAPI.getPlayerData(playerUuid).isSet("minefarms")) return new ArrayList<>();
 
-        Minefarm minefarm = new Minefarm(uuid);
+        return String2Uuid.toUuid(DataStorageAPI.getPlayerData(playerUuid).getStringList("minefarms"));
+    }
 
-        minefarms.put(uuid, minefarm);
+    public void setMinefarms(UUID playerUuid, List<UUID> uuids){
+        DataStorageAPI.getPlayerData(playerUuid).set("minefarms", String2Uuid.toString(uuids));
+    }
+
+    public Minefarm getMinefarmByUuid(UUID minefarmUuid){
+        if(minefarms.containsKey(minefarmUuid)) return minefarms.get(minefarmUuid);
+
+        Minefarm minefarm = new Minefarm(minefarmUuid);
+
+        minefarms.put(minefarmUuid, minefarm);
 
         return minefarm;
     }
