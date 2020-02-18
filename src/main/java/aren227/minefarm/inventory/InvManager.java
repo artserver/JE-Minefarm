@@ -27,6 +27,7 @@ public class InvManager {
         close(player);
 
         instance.plugin.getServer().getScheduler().scheduleSyncDelayedTask(instance.plugin, () -> {
+            instance.opened.put(player.getUniqueId(), inv);
             inv.open(player);
         }, 2);
     }

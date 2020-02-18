@@ -3,7 +3,9 @@ package aren227.minefarm;
 import aren227.minefarm.command.MinefarmCommand;
 import aren227.minefarm.generator.MinefarmGenerator;
 import aren227.minefarm.inventory.InvManager;
+import aren227.minefarm.minefarm.Minefarm;
 import aren227.minefarm.util.MinefarmID;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,6 +38,15 @@ public final class Plugin extends JavaPlugin implements Listener {
 
 
         this.getCommand("mf").setExecutor(new MinefarmCommand(manager));
+
+        boolean pass = true;
+        for(int i = 0; i < 10; i++){
+            UUID uuid = MinefarmID.generateUuid();
+            if(!uuid.equals(MinefarmID.stringToUuid(MinefarmID.uuidToString(uuid)))){
+                pass = false;
+            }
+        }
+        getLogger().info("PASS : " + pass);
     }
 
     @Override
@@ -58,6 +69,29 @@ public final class Plugin extends JavaPlugin implements Listener {
             else{
                 event.setCancelled(true);
             }*/
+            event.setCancelled(true);
+        }
+        //아이템을 들었다
+        if(event.getItem() != null){
+            if(event.getItem().getType().equals(Material.KNOWLEDGE_BOOK)){
+                event.setCancelled(true);
+
+                if(event.getItem().getLore() != null && event.getItem().getLore().size() == 2){
+                    if(event.getItem().getLore().get(1).equals(event.getPlayer().getUniqueId().toString())){
+                        Minefarm minefarm = manager.createMinefarm();
+                        minefarm.addPlayer(event.getPlayer().getUniqueId());
+                        minefarm.setMain(event.getPlayer().getUniqueId());
+                        minefarm.addOp(event.getPlayer().getUniqueId());
+                        minefarm.setName(event.getPlayer().getName() + "의 마인팜");
+
+                        event.getPlayer().sendMessage("마인팜이 " + ChatColor.GREEN + "생성" + ChatColor.RESET + "되었습니다!");
+                        event.getPlayer().sendMessage(ChatColor.RED + "/mf " + ChatColor.RESET + "명령어를 통해 마인팜으로 이동하세요.");
+                    }
+                    else{
+                        event.getPlayer().sendMessage(ChatColor.RED + "이 생성권은 아이템의 원래 소유자만 사용할 수 있습니다.");
+                    }
+                }
+            }
         }
     }
 

@@ -79,6 +79,17 @@ public class Minefarm {
         Manager.getInstance().setMinefarms(playerUuid, list2);
     }
 
+    public boolean isMember(UUID playerUuid){
+        boolean result = false;
+        for(UUID uuid : getPlayers()){
+            if(playerUuid.equals(uuid)){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
     public List<UUID> getOps(){
         if(!DataStorageAPI.getPluginData("minefarm", uuid).isSet("ops")) return new ArrayList<>();
         return String2Uuid.toUuid(DataStorageAPI.getPluginData("minefarm", uuid).getStringList("ops"));
@@ -94,8 +105,19 @@ public class Minefarm {
         setOps(list);
     }
 
+    public boolean isOp(UUID playerUuid){
+        boolean result = false;
+        for(UUID uuid : getOps()){
+            if(playerUuid.equals(uuid)){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
     public void setMain(UUID playerUuid){
-        DataStorageAPI.getPlayerData(playerUuid).set("currentMinefarm", uuid);
+        DataStorageAPI.getPlayerData(playerUuid).set("currentMinefarm", uuid.toString());
     }
 
     public void setName(String name){

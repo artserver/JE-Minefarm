@@ -33,6 +33,13 @@ public class MinefarmID {
         current = ConfigManager.getConfigSession(plugin).getInt("minefarmIdCurrent");
     }
 
+    public static void validate(String id) throws RuntimeException{
+        if(id.length() != 5) throw new RuntimeException("마인팜 ID는 5자리의 대문자 영어로 구성되어 있습니다.");
+        for(int i = 0; i < 5; i++){
+            if('A' > id.charAt(i) || id.charAt(i) > 'Z') throw new RuntimeException("마인팜 ID는 5자리의 대문자 영어로 구성되어 있습니다.");
+        }
+    }
+
     public static String uuidToString(UUID uuid){
         int idx = (int)uuid.getMostSignificantBits();
 
@@ -40,11 +47,19 @@ public class MinefarmID {
 
         for(int i = 4; i >= 0; i--){
             int t = idx / instance.pow(26, i);
-            id += (char)((int)'a' + t);
+            id += (char)((int)'A' + t);
             idx -= t * instance.pow(26, i);
         }
 
         return id;
+    }
+
+    public static UUID stringToUuid(String id){
+        int idx = 0;
+        for(int i = 0; i < 5; i++){
+            idx += (id.charAt(i) - 'A') * instance.pow(26, 4 - i);
+        }
+        return new UUID(idx, 0);
     }
 
     public static UUID generateUuid(){
