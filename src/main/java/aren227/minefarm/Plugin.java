@@ -5,8 +5,10 @@ import aren227.minefarm.generator.MinefarmGenerator;
 import aren227.minefarm.inventory.InvManager;
 import aren227.minefarm.minefarm.Minefarm;
 import aren227.minefarm.util.MinefarmID;
+import kr.laeng.datastorage.DataStorageAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -62,7 +64,7 @@ public final class Plugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event){
-        if(event.getClickedBlock().getType().equals(Material.STRUCTURE_BLOCK)){
+        if(event.getClickedBlock() != null && event.getClickedBlock().getType().equals(Material.STRUCTURE_BLOCK)){
             /*if(event.getAction() == Action.RIGHT_CLICK_BLOCK){
                 MinefarmConfInv.create(event.getPlayer()).open(event.getPlayer());
             }

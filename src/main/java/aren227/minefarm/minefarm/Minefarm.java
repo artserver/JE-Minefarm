@@ -5,6 +5,7 @@ import aren227.minefarm.util.Sector;
 import aren227.minefarm.util.String2Uuid;
 import kr.laeng.datastorage.DataStorageAPI;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -77,6 +78,22 @@ public class Minefarm {
         List<UUID> list2 = Manager.getInstance().getMinefarms(playerUuid);
         list2.add(uuid);
         Manager.getInstance().setMinefarms(playerUuid, list2);
+
+        /*if(list2.size() == 1){
+            setMain(playerUuid);
+        }*/
+    }
+
+    public void removePlayer(UUID playerUuid){
+        List<UUID> list = getPlayers();
+        list.remove(playerUuid);
+        setPlayers(list);
+
+        removeOp(playerUuid);
+
+        List<UUID> list2 = Manager.getInstance().getMinefarms(playerUuid);
+        list2.remove(uuid);
+        Manager.getInstance().setMinefarms(playerUuid, list2);
     }
 
     public boolean isMember(UUID playerUuid){
@@ -105,6 +122,12 @@ public class Minefarm {
         setOps(list);
     }
 
+    public void removeOp(UUID playerUuid){
+        List<UUID> list = getOps();
+        list.remove(playerUuid);
+        setOps(list);
+    }
+
     public boolean isOp(UUID playerUuid){
         boolean result = false;
         for(UUID uuid : getOps()){
@@ -126,6 +149,22 @@ public class Minefarm {
 
     public String getName(){
         return DataStorageAPI.getPluginData("minefarm", uuid).getString("name");
+    }
+
+    public boolean getCanVisit(){
+        return DataStorageAPI.getPluginData("minefarm", uuid).getBoolean("canVisit", false);
+    }
+
+    public void setCanVisit(boolean canVisit){
+        DataStorageAPI.getPluginData("minefarm", uuid).set("canVisit", canVisit);
+    }
+
+    public Material getIcon(){
+        return Material.valueOf(DataStorageAPI.getPluginData("minefarm", uuid).getString("icon", "GRASS"));
+    }
+
+    public void setIcon(Material material){
+        DataStorageAPI.getPluginData("minefarm", uuid).set("icon", material.name());
     }
 
 }

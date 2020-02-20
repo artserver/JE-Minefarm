@@ -47,7 +47,7 @@ public class MinefarmInvitationInv implements InventoryProvider {
     public void init(Player player, InventoryContents contents) {
         Minefarm minefarm = Manager.getInstance().getMinefarmByUuid(invitation.minefarmUuid);
         if(minefarm != null){
-            ItemStack grass = getItemStackWithName(new ItemStack(Material.GRASS), minefarm.getName());
+            ItemStack grass = getItemStackWithName(new ItemStack(minefarm.getIcon()), minefarm.getName());
             ItemMeta meta = grass.getItemMeta();
             meta.setLore(Arrays.asList("인원: " + minefarm.getPlayers().size(), "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId())));
             grass.setItemMeta(meta);
@@ -60,6 +60,7 @@ public class MinefarmInvitationInv implements InventoryProvider {
 
             contents.set(2, 3, ClickableItem.of(no, e -> {
                 if(e.isLeftClick()) {
+                    InvManager.close(player);
                     try{
                         Manager.getInstance().processMinefarmInvitation(player, invitation, false);
                     }
@@ -71,6 +72,7 @@ public class MinefarmInvitationInv implements InventoryProvider {
 
             contents.set(2, 5, ClickableItem.of(yes, e -> {
                 if(e.isLeftClick()) {
+                    InvManager.close(player);
                     try{
                         Manager.getInstance().processMinefarmInvitation(player, invitation, true);
                     }

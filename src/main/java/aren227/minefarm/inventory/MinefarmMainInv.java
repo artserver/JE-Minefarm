@@ -43,19 +43,15 @@ public class MinefarmMainInv implements InventoryProvider{
     @Override
     public void init(Player player, InventoryContents contents) {
         final Minefarm minefarm = Manager.getInstance().getCurrentMinefarm(player.getUniqueId());
-
         //ItemStack sapling = getItemStackWithName(new ItemStack(Material.SAPLING), "마인팜 " + ChatColor.GREEN + "생성" + ChatColor.RESET + "하기");
 
         ItemStack ender = getItemStackWithName(new ItemStack(Material.ENDER_PEARL), "마인팜 " + ChatColor.LIGHT_PURPLE + "리프" + ChatColor.RESET + "하기");
 
-        ItemStack grass = minefarm != null ? getItemStackWithName(new ItemStack(Material.GRASS), "마인팜으로 이동")
-                : getItemStackWithName(new ItemStack(Material.BARRIER), ChatColor.RED + "가입된 마인팜이 없으므로 이용할 수 없습니다.");
+        ItemStack grass = getItemStackWithName(new ItemStack(Material.GRASS), "마인팜으로 이동하기");
 
         ItemStack chest = getItemStackWithName(new ItemStack(Material.CHEST), "내가 가입한 " + ChatColor.GREEN + "마인팜 목록");
 
         ItemStack cart = getItemStackWithName(new ItemStack(Material.MINECART), "다른 마인팜에 " + ChatColor.GOLD + "방문" + ChatColor.RESET + "하기");
-
-        ItemStack pickaxe = getItemStackWithName(new ItemStack(Material.IRON_PICKAXE), "다른 마인팜에 " + ChatColor.GREEN + "가입" + ChatColor.RESET + "하기");
 
         /*ItemStack skull = new ItemStack(Material.SKULL_ITEM);
         skull.setDurability((short)3);
@@ -75,8 +71,8 @@ public class MinefarmMainInv implements InventoryProvider{
 
         ItemStack bookQuill = getItemStackWithName(new ItemStack(Material.BOOK_AND_QUILL), "마인팜 초대장 : " + ChatColor.GREEN + Manager.getInstance().getMinefarmInvitations(player.getUniqueId()).size() + ChatColor.RESET + "장");
 
-        ItemStack book = getItemStackWithName(new ItemStack(Material.BARRIER), ChatColor.RED + "자신의 마인팜에서만 사용 가능합니다.");
-        if(inMinefarm != null && inMinefarm.isMember(player.getUniqueId())){
+        ItemStack book = getItemStackWithName(new ItemStack(Material.BARRIER), ChatColor.RED + "거주하는 마인팜이 없습니다.");
+        if(minefarm != null){
             book = getItemStackWithName(new ItemStack(Material.BOOK), "마인팜 ID : " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId()));
         }
 
@@ -90,7 +86,7 @@ public class MinefarmMainInv implements InventoryProvider{
             if(e.isLeftClick()) {
                 InvManager.close(player);
                 if(Manager.getInstance().getLeapCooldown(player.getUniqueId()) > 0){
-                    InvManager.open(player, FailInv.create(player, "마인팜 리프는 " + ChatColor.RED + Time2String.getString(Manager.getInstance().getLeapCooldown(player.getUniqueId())) + ChatColor.RESET + "동안 사용할 수 없습니다."));
+                    InvManager.open(player, FailInv.create(player, "실패", "마인팜 리프는 " + ChatColor.RED + Time2String.getString(Manager.getInstance().getLeapCooldown(player.getUniqueId())) + ChatColor.RESET + "\n후 사용 가능합니다."));
                 }
                 else{
                     InvManager.open(player, MinefarmLeapInv.create(player));
@@ -120,7 +116,7 @@ public class MinefarmMainInv implements InventoryProvider{
         contents.set(1, 4, ClickableItem.of(cart, e -> {
             if(e.isLeftClick()) {
                 InvManager.close(player);
-                InvManager.open(player, SuccessInv.create(player, "아이템 이름 입력 창에 " + ChatColor.GREEN + "마인팜 ID" + ChatColor.RESET + "를 입력한 뒤, " + ChatColor.RED + "오른쪽 아이템" + ChatColor.RESET + "을 꺼내주세요!", () -> {
+                InvManager.open(player, SuccessInv.create(player, "사용 방법", "아이템 이름 입력 창에\n" + ChatColor.GREEN + "마인팜 ID" + ChatColor.RESET + "를 입력한 뒤,\n" + ChatColor.RED + "오른쪽 아이템" + ChatColor.RESET + "을 꺼내주세요!", () -> {
                     new AnvilGUI.Builder()
                             .onClose(p -> {
                             })

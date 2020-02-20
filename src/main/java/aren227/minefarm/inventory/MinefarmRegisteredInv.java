@@ -51,11 +51,13 @@ public class MinefarmRegisteredInv implements InventoryProvider{
         for(UUID uuid : minefarms){
             Minefarm minefarm = Manager.getInstance().getMinefarmByUuid(uuid);
 
-            ItemStack grass = new ItemStack(Material.GRASS);
+            ItemStack grass = new ItemStack(minefarm.getIcon());
             ItemMeta meta = grass.getItemMeta();
             meta.setDisplayName(minefarm.getName());
-            meta.setLore(Arrays.asList("인원: " + minefarm.getPlayers().size(), "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId())));
+            meta.setLore(Arrays.asList("인원: " + minefarm.getPlayers().size(), "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId()), minefarm.getSector().x + ", " + minefarm.getSector().z));
             grass.setItemMeta(meta);
+
+            //contents.set(idx / 9, idx % 9, ClickableItem.empty(grass));
 
             contents.set(idx / 9, idx % 9, ClickableItem.empty(grass));
 

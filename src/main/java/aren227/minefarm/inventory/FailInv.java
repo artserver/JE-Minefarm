@@ -15,46 +15,48 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Arrays;
+
 public class FailInv implements InventoryProvider{
 
     Player player;
+    String title;
     String reason;
     Runnable runnable;
 
-    public static SmartInventory create(Player player, String reason){
+    public static SmartInventory create(Player player, String title, String reason){
         player.closeInventory();
         return SmartInventory.builder()
-                .provider(new FailInv(player, reason, null))
+                .provider(new FailInv(player, title, reason, null))
                 .size(3, 9)
-                .title(reason)
+                .title(title)
                 .build();
     }
 
-    public static SmartInventory create(Player player, String reason, Runnable runnable){
+    public static SmartInventory create(Player player, String title, String reason, Runnable runnable){
         player.closeInventory();
         return SmartInventory.builder()
-                .provider(new FailInv(player, reason, runnable))
+                .provider(new FailInv(player, title, reason, runnable))
                 .size(3, 9)
-                .title(reason)
+                .title(title)
                 .build();
     }
 
-    private FailInv(Player player, String reason, Runnable runnable){
+    private FailInv(Player player, String title, String reason, Runnable runnable){
         this.player = player;
+        this.title = title;
         this.reason = reason;
         this.runnable = runnable;
     }
 
-    private ItemStack getItemStackWithName(ItemStack itemStack, String name){
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(name);
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
-    }
-
     @Override
     public void init(Player player, InventoryContents contents) {
-        ItemStack red = getItemStackWithName(new ItemStack(Material.REDSTONE_BLOCK), reason);
+        ItemStack red = new ItemStack(Material.REDSTONE_BLOCK);
+        ItemMeta itemMeta = red.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.RED + title);
+        itemMeta.setLore(Arrays.asList(reason.split("\n")));
+        red.setItemMeta(itemMeta);
+
         ClickableItem cItem = ClickableItem.of(red, e -> {
             if(e.isLeftClick()) {
                 InvManager.close(player);

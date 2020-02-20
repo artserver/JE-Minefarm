@@ -15,32 +15,36 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Arrays;
+
 public class SuccessInv implements InventoryProvider{
 
     Player player;
+    String title;
     String reason;
     Runnable runnable;
 
-    public static SmartInventory create(Player player, String reason){
+    public static SmartInventory create(Player player, String title, String reason){
         player.closeInventory();
         return SmartInventory.builder()
-                .provider(new SuccessInv(player, reason, null))
+                .provider(new SuccessInv(player, title, reason, null))
                 .size(3, 9)
-                .title(reason)
+                .title(title)
                 .build();
     }
 
-    public static SmartInventory create(Player player, String reason, Runnable runnable){
+    public static SmartInventory create(Player player, String title, String reason, Runnable runnable){
         player.closeInventory();
         return SmartInventory.builder()
-                .provider(new SuccessInv(player, reason, runnable))
+                .provider(new SuccessInv(player, title, reason, runnable))
                 .size(3, 9)
-                .title(reason)
+                .title(title)
                 .build();
     }
 
-    private SuccessInv(Player player, String reason, Runnable runnable){
+    private SuccessInv(Player player, String title, String reason, Runnable runnable){
         this.player = player;
+        this.title = title;
         this.reason = reason;
         this.runnable = runnable;
     }
@@ -54,7 +58,12 @@ public class SuccessInv implements InventoryProvider{
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        ItemStack green = getItemStackWithName(new ItemStack(Material.EMERALD_BLOCK), reason);
+        ItemStack green = new ItemStack(Material.EMERALD_BLOCK);
+        ItemMeta itemMeta = green.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GREEN + title);
+        itemMeta.setLore(Arrays.asList(reason.split("\n")));
+        green.setItemMeta(itemMeta);
+
         ClickableItem cItem = ClickableItem.of(green, e -> {
             if(e.isLeftClick()) {
                 InvManager.close(player);

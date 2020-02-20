@@ -36,10 +36,17 @@ public class MinefarmMembersInv implements InventoryProvider{
         this.player = player;
     }
 
-    private ItemStack getSkull(OfflinePlayer player){
+    private ItemStack getSkull(OfflinePlayer player, Minefarm minefarm, boolean openerOp){
         SkullMeta meta = (SkullMeta)Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM);
         meta.setOwningPlayer(player);
         meta.setDisplayName(player.getName());
+        if(minefarm.isOp(player.getUniqueId())){
+            if(openerOp) meta.setLore(Arrays.asList("관리자", ChatColor.WHITE + "클릭해서 설정 화면을 여세요."));
+            else meta.setLore(Arrays.asList("관리자"));
+        }
+        else{
+            if(openerOp) meta.setLore(Arrays.asList(ChatColor.WHITE + "클릭해서 설정 화면을 여세요."));
+        }
         ItemStack stack = new ItemStack(Material.SKULL_ITEM,1 , (byte)3);
         stack.setItemMeta(meta);
         return stack;
@@ -53,7 +60,15 @@ public class MinefarmMembersInv implements InventoryProvider{
         List<UUID> members = minefarm.getPlayers();
         int idx = 0;
         for(UUID uuid : members){
-            contents.set(idx / 9, idx % 9, ClickableItem.empty(getSkull(Manager.getInstance().getPlugin().getServer().getOfflinePlayer(uuid))));
+            OfflinePlayer offline = Manager.getInstance().getPlugin().getServer().getOfflinePlayer(uuid);
+            contents.set(idx / 9, idx % 9, ClickableItem.of(getSkull(offline, minefarm, minefarm.isOp(player.getUniqueId())), e -> {
+                if(e.isLeftClick()) {
+                    if(minefarm.isOp(player.getUniqueId())){
+                        InvManager.close(player);
+                        InvManager.open(player, MinefarmMemberConfInv.create(player, offline));
+                    }
+                }
+            }));
             idx++;
         }
     }

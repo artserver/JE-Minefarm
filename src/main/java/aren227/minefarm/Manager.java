@@ -28,6 +28,7 @@ public class Manager {
     public static final int MINEFARM_DIST = 256;
     public static final int MINEFARM_CHUNK_DIST = MINEFARM_DIST / 16;
     public static final int MINEFARM_Y = 50;
+    public static final int LEAP_COOL = 1000 * 15;
 
     public static Manager instance;
 
@@ -66,12 +67,19 @@ public class Manager {
         return skyblockWorld;
     }
 
+    public World getDefaultWorld(){
+        return plugin.getServer().getWorld("world");
+    }
+
     public void goToCurrentMinefarm(Player player) throws RuntimeException {
         if(!hasMinefarm(player.getUniqueId())){
             throw new RuntimeException("아직 소속된 마인팜이 없습니다.");
         }
 
         Minefarm minefarm = getCurrentMinefarm(player.getUniqueId());
+        if(minefarm == null){
+            throw new RuntimeException("소속된 마인팜이 존재하지만 거주 마인팜이 설정되지 않았습니다. 마인팜 리프를 통해 거주 마인팜을 선택해주세요.");
+        }
 
         DataStorageAPI.getPlayerData(player).set("lastVisitMinefarm", minefarm.getUniqueId().toString());
 
@@ -116,6 +124,8 @@ public class Manager {
 
     public Minefarm getCurrentMinefarm(UUID playerUuid){
         if(!hasMinefarm(playerUuid)) return null;
+        if(!DataStorageAPI.getPlayerData(playerUuid).isSet("currentMinefarm")) return null;
+        if(!getMinefarms(playerUuid).contains(UUID.fromString(DataStorageAPI.getPlayerData(playerUuid).getString("currentMinefarm")))) return null;
 
         return getMinefarmByUuid(UUID.fromString(DataStorageAPI.getPlayerData(playerUuid).getString("currentMinefarm")));
     }
@@ -133,14 +143,14 @@ public class Manager {
 
         if(!pass) throw new RuntimeException("현재 리프하려는 마인팜에 가입된 상태가 아닙니다.");
 
-        if(getCurrentMinefarm(playerUuid).getUniqueId().equals(minefarmUuid)) throw new RuntimeException("지금 거주하는 마인팜으론 리프할 수 없습니다.");
+        if(getCurrentMinefarm(playerUuid) != null && getCurrentMinefarm(playerUuid).getUniqueId().equals(minefarmUuid)) throw new RuntimeException("지금 거주하는 마인팜으론 리프할 수 없습니다.");
 
         if(getLeapCooldown(playerUuid) > 0) throw new RuntimeException("아직 마인팜 리프를 사용할 수 없습니다.");
 
         Minefarm minefarm = getMinefarmByUuid(minefarmUuid);
         minefarm.setMain(playerUuid);
 
-        setLeapCooldown(playerUuid, 10 * 1000);
+        setLeapCooldown(playerUuid, LEAP_COOL);
     }
 
     public long getLeapCooldown(UUID playerUuid){
@@ -202,12 +212,8 @@ public class Manager {
     }
 
     public void createMinefarmInvitation(Player from, String target) throws RuntimeException{
-        getPlugin().getLogger().info("START!");
-
         Minefarm minefarm = getCurrentMinefarm(from.getUniqueId());
         if(minefarm == null) throw new RuntimeException("현재 소속된 마인팜이 없습니다.");
-
-        getPlugin().getLogger().info("START!1");
 
         OfflinePlayer offlinePlayer = null;
         for(OfflinePlayer p : getPlugin().getServer().getOfflinePlayers()){
@@ -218,15 +224,11 @@ public class Manager {
         }
         if(offlinePlayer == null) throw new RuntimeException("해당 플레이어가 존재하지 않습니다.");
 
-        getPlugin().getLogger().info("START!2");
-
         if(minefarm.isMember(offlinePlayer.getUniqueId())) throw new RuntimeException("이미 이 마인팜에 가입된 상태입니다.");
 
         List<MinefarmInvitation> list = getMinefarmInvitations(offlinePlayer.getUniqueId());
         list.add(MinefarmInvitation.create(minefarm.getUniqueId(), from.getUniqueId(), offlinePlayer.getUniqueId(), System.currentTimeMillis() + 60 * 60 * 1000));
         setMinefarmInvitations(offlinePlayer.getUniqueId(), list);
-
-        getPlugin().getLogger().info("START!3");
 
         Player onlinePlayer = getPlugin().getServer().getPlayer(target);
         if(onlinePlayer != null){
@@ -286,6 +288,10 @@ public class Manager {
         if(sx == 0){
             sx = sz + 1;
             sz = 0;
+        }
+        else{
+            sx--;
+            sz++;
         }
 
         cs.set("sx", sx);
