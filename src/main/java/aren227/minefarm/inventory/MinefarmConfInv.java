@@ -10,6 +10,7 @@ import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -104,8 +105,14 @@ public class MinefarmConfInv implements InventoryProvider{
                 InvManager.close(player);
                 if(minefarm.isOp(player.getUniqueId())){
                     InvManager.open(player, YesNoInv.create(player, "스폰 지점 설정", "지금 서 있는 이곳을\n스폰지점으로 설정할까요?", () -> {
-                        minefarm.setSpawnLocation(player.getLocation());
-                        player.sendMessage("스폰지점을 " + ChatColor.GREEN + "변경" + ChatColor.RESET + "했습니다.");
+                        Location location = player.getLocation();
+                        if(minefarm.getSector().isIn(location.getX(), location.getY(), location.getZ())){
+                            minefarm.setSpawnLocation(player.getLocation());
+                            player.sendMessage("스폰지점을 " + ChatColor.GREEN + "변경" + ChatColor.RESET + "했습니다.");
+                        }
+                        else{
+                            player.sendMessage(ChatColor.RED + "섬 구역 안쪽에서만 스폰지점 설정이 가능합니다.");
+                        }
                     }, null));
                 }
                 else{

@@ -35,7 +35,7 @@ public class Minefarm {
 
     public Sector getSector(){
         FileConfiguration fc = DataStorageAPI.getPluginData("minefarm", uuid);
-        return new Sector(fc.getInt("x"), fc.getInt("z"));
+        return new Sector(fc.getInt("x"), fc.getInt("z"), getSectorSize());
     }
 
     public void setSector(Sector sec){
@@ -165,6 +165,21 @@ public class Minefarm {
 
     public void setIcon(Material material){
         DataStorageAPI.getPluginData("minefarm", uuid).set("icon", material.name());
+    }
+
+    public int getReputation(){
+        return DataStorageAPI.getPluginData("minefarm", uuid).getInt("rep", 0);
+    }
+
+    public void setReputation(int rep){
+        DataStorageAPI.getPluginData("minefarm", uuid).set("rep", rep);
+    }
+
+    public int getSectorSize(){
+        int rep = getReputation();
+        if(rep < Manager.MINEFARM_REP_TIER2) return Manager.MINEFARM_SIZE_TIER_3;
+        else if(rep < Manager.MINEFARM_REP_TIER1) return Manager.MINEFARM_SIZE_TIER_2;
+        return Manager.MINEFARM_SIZE_TIER_1;
     }
 
 }

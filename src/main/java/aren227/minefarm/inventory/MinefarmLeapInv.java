@@ -65,7 +65,7 @@ public class MinefarmLeapInv implements InventoryProvider{
             ItemStack grass = new ItemStack(minefarm.getIcon());
             ItemMeta meta = grass.getItemMeta();
             meta.setDisplayName(minefarm.getName());
-            meta.setLore(Arrays.asList("인원: " + minefarm.getPlayers().size(), "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId())));
+            meta.setLore(Arrays.asList(ChatColor.WHITE + "인원: " + minefarm.getPlayers().size(), ChatColor.WHITE + "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId()), ChatColor.WHITE + "명성 : " + minefarm.getReputation()));
             grass.setItemMeta(meta);
 
             contents.set(idx / 9, idx % 9, ClickableItem.of(grass, e -> {

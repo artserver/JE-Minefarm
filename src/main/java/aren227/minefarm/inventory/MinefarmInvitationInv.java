@@ -49,7 +49,7 @@ public class MinefarmInvitationInv implements InventoryProvider {
         if(minefarm != null){
             ItemStack grass = getItemStackWithName(new ItemStack(minefarm.getIcon()), minefarm.getName());
             ItemMeta meta = grass.getItemMeta();
-            meta.setLore(Arrays.asList("인원: " + minefarm.getPlayers().size(), "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId())));
+            meta.setLore(Arrays.asList(ChatColor.WHITE + "인원: " + minefarm.getPlayers().size(), ChatColor.WHITE + "마인팜 ID: " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId()), ChatColor.WHITE + "명성 : " + minefarm.getReputation()));
             grass.setItemMeta(meta);
 
             ItemStack no = getItemStackWithName(new ItemStack(Material.REDSTONE_BLOCK), ChatColor.RED + "거부");

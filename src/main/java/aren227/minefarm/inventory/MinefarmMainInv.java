@@ -16,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Arrays;
+
 public class MinefarmMainInv implements InventoryProvider{
 
     Player player;
@@ -74,6 +76,9 @@ public class MinefarmMainInv implements InventoryProvider{
         ItemStack book = getItemStackWithName(new ItemStack(Material.BARRIER), ChatColor.RED + "거주하는 마인팜이 없습니다.");
         if(minefarm != null){
             book = getItemStackWithName(new ItemStack(Material.BOOK), "마인팜 ID : " + ChatColor.GOLD + MinefarmID.uuidToString(minefarm.getUniqueId()));
+            ItemMeta itemMeta = book.getItemMeta();
+            itemMeta.setLore(Arrays.asList(ChatColor.WHITE + "명성 : " + minefarm.getReputation()));
+            book.setItemMeta(itemMeta);
         }
 
         /*contents.set(0, 3, ClickableItem.of(sapling, e -> {
@@ -116,7 +121,7 @@ public class MinefarmMainInv implements InventoryProvider{
         contents.set(1, 4, ClickableItem.of(cart, e -> {
             if(e.isLeftClick()) {
                 InvManager.close(player);
-                InvManager.open(player, SuccessInv.create(player, "사용 방법", "아이템 이름 입력 창에\n" + ChatColor.GREEN + "마인팜 ID" + ChatColor.RESET + "를 입력한 뒤,\n" + ChatColor.RED + "오른쪽 아이템" + ChatColor.RESET + "을 꺼내주세요!", () -> {
+                InvManager.open(player, SuccessInv.create(player, "사용 방법", ChatColor.WHITE + "아이템 이름 입력 창에\n" + ChatColor.GREEN + "마인팜 ID" + ChatColor.RESET + "를 입력한 뒤,\n" + ChatColor.RED + "오른쪽 아이템" + ChatColor.RESET + "을 꺼내주세요!", () -> {
                     new AnvilGUI.Builder()
                             .onClose(p -> {
                             })

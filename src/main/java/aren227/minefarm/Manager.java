@@ -30,6 +30,14 @@ public class Manager {
     public static final int MINEFARM_Y = 50;
     public static final int LEAP_COOL = 1000 * 15;
 
+    public static final int MINEFARM_SIZE_TIER_3 = 64;
+    public static final int MINEFARM_SIZE_TIER_2 = 128;
+    public static final int MINEFARM_SIZE_TIER_1 = 256;
+
+    public static final int MINEFARM_REP_TIER3 = 0;
+    public static final int MINEFARM_REP_TIER2 = 100000;
+    public static final int MINEFARM_REP_TIER1 = 5000000;
+
     public static Manager instance;
 
     private Plugin plugin;
@@ -92,6 +100,8 @@ public class Manager {
 
         Minefarm minefarm = getMinefarmByUuid(MinefarmID.stringToUuid(code));
         if(minefarm == null) throw new RuntimeException("해당 ID(" + code + ")의 마인팜이 존재하지 않습니다.");
+
+        if(!minefarm.getCanVisit()) throw new RuntimeException("해당 마인팜의 방문이 금지되어 있습니다.");
 
         player.sendMessage(minefarm.getName() + "으로 이동합니다!");
 
@@ -278,7 +288,7 @@ public class Manager {
             cs.set("sx", 0);
             cs.set("sz", 0);
             cs.save();
-            return new Sector(0, 0);
+            return new Sector(0, 0, MINEFARM_SIZE_TIER_3);
         }
 
         int sx = cs.getInt("sx");
@@ -297,7 +307,7 @@ public class Manager {
         cs.set("sx", sx);
         cs.set("sz", sz);
         cs.save();
-        return new Sector(sx, sz);
+        return new Sector(sx, sz, MINEFARM_SIZE_TIER_3);
     }
 
 }

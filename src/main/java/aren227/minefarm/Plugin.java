@@ -13,6 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -64,20 +66,10 @@ public final class Plugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event){
-        if(event.getClickedBlock() != null && event.getClickedBlock().getType().equals(Material.STRUCTURE_BLOCK)){
-            /*if(event.getAction() == Action.RIGHT_CLICK_BLOCK){
-                MinefarmConfInv.create(event.getPlayer()).open(event.getPlayer());
-            }
-            else{
-                event.setCancelled(true);
-            }*/
-            event.setCancelled(true);
-        }
         //아이템을 들었다
         if(event.getItem() != null){
             if(event.getItem().getType().equals(Material.KNOWLEDGE_BOOK)){
                 event.setCancelled(true);
-
                 if(event.getItem().getLore() != null && event.getItem().getLore().size() == 2){
                     if(event.getItem().getLore().get(1).equals(event.getPlayer().getUniqueId().toString())){
                         Minefarm minefarm = manager.createMinefarm();
@@ -93,6 +85,30 @@ public final class Plugin extends JavaPlugin implements Listener {
                         event.getPlayer().sendMessage(ChatColor.RED + "이 생성권은 아이템의 원래 소유자만 사용할 수 있습니다.");
                     }
                 }
+                return;
+            }
+        }
+
+        if(event.getClickedBlock() != null && event.getClickedBlock().getType().equals(Material.STRUCTURE_BLOCK)){
+            event.setCancelled(true);
+            return;
+        }
+
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null && event.getPlayer().getWorld().equals(manager.getMinefarmWorld())){
+            boolean pass = false;
+            for(UUID minefarmUuid : manager.getMinefarms(event.getPlayer().getUniqueId())){
+                Minefarm minefarm = manager.getMinefarmByUuid(minefarmUuid);
+                if(minefarm != null){
+                    if(minefarm.getSector().isIn(event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ())){
+                        pass = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!pass){
+                event.setCancelled(true);
+                return;
             }
         }
     }
@@ -100,5 +116,50 @@ public final class Plugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent event){
         if(event.getBlock().getType().equals(Material.STRUCTURE_BLOCK)) event.setCancelled(true);
+
+        if(event.getPlayer().getWorld().equals(manager.getMinefarmWorld())){
+            boolean pass = false;
+            for(UUID minefarmUuid : manager.getMinefarms(event.getPlayer().getUniqueId())){
+                Minefarm minefarm = manager.getMinefarmByUuid(minefarmUuid);
+                if(minefarm != null){
+                    if(minefarm.getSector().isIn(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())){
+                        pass = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!pass){
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlace(BlockPlaceEvent event){
+        if(event.getPlayer().getWorld().equals(manager.getMinefarmWorld())){
+            boolean pass = false;
+            for(UUID minefarmUuid : manager.getMinefarms(event.getPlayer().getUniqueId())){
+                Minefarm minefarm = manager.getMinefarmByUuid(minefarmUuid);
+                if(minefarm != null){
+                    if(minefarm.getSector().isIn(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())){
+                        pass = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!pass){
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event){
+        event.setKeepInventory(true);
+        event.setKeepLevel(true);
     }
 }

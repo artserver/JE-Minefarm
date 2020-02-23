@@ -7,14 +7,26 @@ public class Sector {
 
     public int x;
     public int z;
+    public int size;
 
-    public Sector(int x, int z){
+    public Sector(int x, int z, int size){
         this.x = x;
         this.z = z;
+        this.size = size;
     }
 
     public boolean isIn(double wx, double wy, double wz){
-        return (x * Manager.MINEFARM_DIST <= wx && wx < (x + 1) * Manager.MINEFARM_DIST && 0 <= wy && wy < 256 && z * Manager.MINEFARM_DIST <= wz && wz < (z + 1) * Manager.MINEFARM_DIST);
+        double cx = Manager.MINEFARM_DIST * (x + 0.5);
+        double cz = Manager.MINEFARM_DIST * (z + 0.5);
+        double rad = size / 2.0;
+        return (cx - rad < wx && wx < cx + rad && cz - rad < wz && wz < cz + rad && 0 <= wy && wy < 256);
+    }
+
+    public boolean isIn(int wx, int wy, int wz){
+        int cx = Manager.MINEFARM_DIST * x + Manager.MINEFARM_DIST / 2;
+        int cz = Manager.MINEFARM_DIST * z + Manager.MINEFARM_DIST / 2;
+        int rad = size / 2;
+        return (cx - rad <= wx && wx < cx + rad && cz - rad <= wz && wz < cz + rad && 0 <= wy && wy < 256);
     }
 
     public Location getDefaultSpawnLocation(){
